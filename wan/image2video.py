@@ -39,6 +39,7 @@ class WanI2V:
         use_usp=False,
         t5_cpu=False,
         init_on_cpu=True,
+        use_fp8 = False,
     ):
         r"""
         Initializes the image-to-video generation model components.
@@ -62,6 +63,8 @@ class WanI2V:
                 Whether to place T5 model on CPU. Only works without t5_fsdp.
             init_on_cpu (`bool`, *optional*, defaults to True):
                 Enable initializing Transformer Model on CPU. Only works without FSDP or USP.
+            use_fp8 (`bool`, *optional*, defaults to False):
+                Whether to use FP8 precision for the model.
         """
         self.device = torch.device(f"cuda:{device_id}")
         self.config = config
@@ -96,7 +99,11 @@ class WanI2V:
             tokenizer_path=os.path.join(checkpoint_dir, config.clip_tokenizer))
 
         logging.info(f"Creating WanModel from {checkpoint_dir}")
-        self.model = WanModel.from_pretrained(checkpoint_dir)
+        if use_fp8:
+            self.model = WanModel.from_pretrained(checkpoint_dir ,torch_dtype=torch.float8_e4m3fn)
+        else:
+            self.model = WanModel.from_pretrained(checkpoint_dir)
+        
         self.model.eval().requires_grad_(False)
 
         if t5_fsdp or dit_fsdp or use_usp:
