@@ -84,7 +84,7 @@ class WanT2V:
             device=self.device)
 
         logging.info(f"Creating WanModel from {checkpoint_dir}")
-        
+
         if use_fp8:
             self.model = WanModel.from_pretrained(checkpoint_dir ,torch_dtype=torch.float8_e4m3fn)
         else:
@@ -198,14 +198,6 @@ class WanT2V:
                 device=self.device,
                 generator=seed_g)
         ]
-
-        # print(f"context shape: {[t.shape for t in context]}, dtype: {[t.dtype for t in context]}")
-        # print(f"context_null shape: {[t.shape for t in context_null]}, dtype: {[t.dtype for t in context_null]}")
-        # print(f"seq_len: {seq_len}")
-        # print(f"seed: {seed}")
-        # print(f"noise shape: {noise[0].shape}, dtype: {noise[0].dtype}")
-        
-        
 
         @contextmanager
         def noop_no_sync():
